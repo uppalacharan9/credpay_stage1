@@ -25,7 +25,7 @@ stages:
               containerRegistry: '$(acrserviceconnection)'
               repository: '$(frontendrepository)'
               command: 'buildAndPush'
-              Dockerfile: 'frontend-react/Dockerfile'
+              Dockerfile: 'frontend-react/dockerfile'
               buildContext: 'frontend-react'
               tags: |
                 $(tag)
