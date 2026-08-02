@@ -32,8 +32,8 @@ stages:
                 latest
           - task: Docker@2
             inputs:
-              containerRegistry: 'Acr_connection'
-              repository: '$(user-service)'
+              containerRegistry: '$(acrserviceconnection)'
+              repository: '$(user-servicerepository)'
               command: 'buildAndPush'
               Dockerfile: 'user-service/dockerfile'
               buildContext: 'user-service'
@@ -42,8 +42,8 @@ stages:
                 New
           - task: Docker@2
             inputs:
-              containerRegistry: 'Acr_connection'
-              repository: 'payment-service'
+              containerRegistry: '$(acrserviceconnection)'
+              repository: '$(payment-servicerepository)'
               command: 'buildAndPush'
               Dockerfile: 'payment-service/dockerfile'
               buildContext: 'payment-service'
