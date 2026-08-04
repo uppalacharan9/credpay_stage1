@@ -39,7 +39,7 @@ stages:
               buildContext: 'user-service'
               tags: |
                 $(tag)
-                New
+                latest
           - task: Docker@2
             inputs:
               containerRegistry: '$(acrserviceconnection)'
@@ -49,4 +49,4 @@ stages:
               buildContext: 'payment-service'
               tags: |
                 $(tag)
-                New
+                latest
