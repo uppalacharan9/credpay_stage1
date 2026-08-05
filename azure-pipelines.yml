@@ -22,7 +22,7 @@ stages:
           - task: Docker@2
             displayName: Build and Push Frontend Image
             inputs:
-              containerRegistry: '$(acrserviceconnection)'
+              containerRegistry: 'new_acr_connection'
               repository: '$(frontendrepository)'
               command: 'buildAndPush'
               Dockerfile: 'frontend-react/dockerfile'
