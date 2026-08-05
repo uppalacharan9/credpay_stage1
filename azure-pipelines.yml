@@ -2,7 +2,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  acrserviceconnection: 'Acr_connection'
+  acrserviceconnection: 'new_acr_connection'
   frontendrepository: 'credpay/frontend'
   userrepository: 'credpay/user-service'
   paymentrepository: 'credpay/payment-service'
@@ -22,7 +22,7 @@ stages:
           - task: Docker@2
             displayName: Build and Push Frontend Image
             inputs:
-              containerRegistry: 'new_acr_connection'
+              containerRegistry: '$(acrserviceconnection)'
               repository: '$(frontendrepository)'
               command: 'buildAndPush'
               Dockerfile: 'frontend-react/dockerfile'
@@ -32,8 +32,8 @@ stages:
                 latest
           - task: Docker@2
             inputs:
-              containerRegistry: 'new_acr_connection'
-              repository: '$(user-servicerepository)'
+              containerRegistry: '$(acrserviceconnection)'
+              repository: '$(userrepository)'
               command: 'buildAndPush'
               Dockerfile: 'user-service/dockerfile'
               buildContext: 'user-service'
@@ -42,8 +42,8 @@ stages:
                 latest
           - task: Docker@2
             inputs:
-              containerRegistry: 'new_acr_connection'
-              repository: '$(payment-servicerepository)'
+              containerRegistry: '$(acrserviceconnection)'
+              repository: '$(paymentrepository)'
               command: 'buildAndPush'
               Dockerfile: 'payment-service/dockerfile'
               buildContext: 'payment-service'
