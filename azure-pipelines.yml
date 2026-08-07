@@ -7,46 +7,66 @@ variables:
   userrepository: 'credpay/user-service'
   paymentrepository: 'credpay/payment-service'
   tag: '$(Build.BuildId)'
-
 stages:
-  - stage: dockerbuild
-    displayName: Docker Build
+    - stage: terraform
+      displayName: terrafrom infra
+      jobs:
+        - job: terraformapply
+          displayName: terraform init & apply
+          steps:
+            - checkout: self
+            - task: TerraformInstaller@1
+              inputs:
+                terraformVersion: 'latest'
+            - task: TerraformTask@5
+              inputs:
+                provider: 'azurerm'
+                command: 'init'
+                workingDirectory: terraform
+                backendServiceArm: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
+                backendAzureRmOverrideSubscriptionID: '40f4ed45-fd9a-44dd-aefb-f83446de9465'
+                backendAzureRmResourceGroupName: 'Capstone-rg'
+                backendAzureRmStorageAccountName: 'credpyproject'
+                backendAzureRmContainerName: 'statefile'
+                backendAzureRmKey: 'credpyproject.terraform.tfstate'
+  # - stage: dockerbuild
+  #   displayName: Docker Build
 
-    jobs:
-      - job: buildpushImages
-        displayName: Build and Push Docker Images
+  #   jobs:
+  #     - job: buildpushImages
+  #       displayName: Build and Push Docker Images
 
-        steps:
-          - checkout: self
+  #       steps:
+  #         - checkout: self
 
-          - task: Docker@2
-            displayName: Build and Push Frontend Image
-            inputs:
-              containerRegistry: '$(acrserviceconnection)'
-              repository: '$(frontendrepository)'
-              command: 'buildAndPush'
-              Dockerfile: 'frontend-react/dockerfile'
-              buildContext: 'frontend-react'
-              tags: |
-                $(tag)
-                latest
-          - task: Docker@2
-            inputs:
-              containerRegistry: '$(acrserviceconnection)'
-              repository: '$(userrepository)'
-              command: 'buildAndPush'
-              Dockerfile: 'user-service/dockerfile'
-              buildContext: 'user-service'
-              tags: |
-                $(tag)
-                latest
-          - task: Docker@2
-            inputs:
-              containerRegistry: '$(acrserviceconnection)'
-              repository: '$(paymentrepository)'
-              command: 'buildAndPush'
-              Dockerfile: 'payment-service/dockerfile'
-              buildContext: 'payment-service'
-              tags: |
-                $(tag)
-                latest
+  #         - task: Docker@2
+  #           displayName: Build and Push Frontend Image
+  #           inputs:
+  #             containerRegistry: '$(acrserviceconnection)'
+  #             repository: '$(frontendrepository)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'frontend-react/dockerfile'
+  #             buildContext: 'frontend-react'
+  #             tags: |
+  #               $(tag)
+  #               latest
+  #         - task: Docker@2
+  #           inputs:
+  #             containerRegistry: '$(acrserviceconnection)'
+  #             repository: '$(userrepository)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'user-service/dockerfile'
+  #             buildContext: 'user-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
+  #         - task: Docker@2
+  #           inputs:
+  #             containerRegistry: '$(acrserviceconnection)'
+  #             repository: '$(paymentrepository)'
+  #             command: 'buildAndPush'
+  #             Dockerfile: 'payment-service/dockerfile'
+  #             buildContext: 'payment-service'
+  #             tags: |
+  #               $(tag)
+  #               latest
