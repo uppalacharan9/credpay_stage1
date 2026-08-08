@@ -1,72 +1,85 @@
 stages:
-    - stage: terraform
-      displayName: terrafrom infra
-      jobs:
-        - job: terraformapply
-          displayName: terraform init & apply
-          steps:
-            - checkout: self
-            - task: TerraformInstaller@1
-              inputs:
-                terraformVersion: 'latest'
-            - task: TerraformTask@5
-              inputs:
-                provider: 'azurerm'
-                command: 'init'
-                workingDirectory: terraform
-                backendServiceArm: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
-                backendAzureRmOverrideSubscriptionID: '3216be10-695a-4fd6-ae65-70140df12a16'
-                backendAzureRmResourceGroupName: 'Capstone-rg'
-                backendAzureRmStorageAccountName: 'credpyproject'
-                backendAzureRmContainerName: 'statefile'
-                backendAzureRmKey: 'credpyproject.terraform.tfstate'
-            - task: AzureCLI@3
-              inputs:
-                connectionType: 'azureRM'
-                azureSubscription: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
-                scriptType: 'bash'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  cd terraform
-                  terraform apply -auto-approve
-  # - stage: dockerbuild
-  #   displayName: Docker Build
+- stage: terraform
+  displayName: Terraform Infra
 
-  #   jobs:
-  #     - job: buildpushImages
-  #       displayName: Build and Push Docker Images
+  jobs:
+  - job: terraformapply
+    displayName: Terraform Init & Apply
 
-  #       steps:
-  #         - checkout: self
+    steps:
+    - checkout: self
 
-  #         - task: Docker@2
-  #           displayName: Build and Push Frontend Image
-  #           inputs:
-  #             containerRegistry: '$(acrserviceconnection)'
-  #             repository: '$(frontendrepository)'
-  #             command: 'buildAndPush'
-  #             Dockerfile: 'frontend-react/dockerfile'
-  #             buildContext: 'frontend-react'
-  #             tags: |
-  #               $(tag)
-  #               latest
-  #         - task: Docker@2
-  #           inputs:
-  #             containerRegistry: '$(acrserviceconnection)'
-  #             repository: '$(userrepository)'
-  #             command: 'buildAndPush'
-  #             Dockerfile: 'user-service/dockerfile'
-  #             buildContext: 'user-service'
-  #             tags: |
-  #               $(tag)
-  #               latest
-  #         - task: Docker@2
-  #           inputs:
-  #             containerRegistry: '$(acrserviceconnection)'
-  #             repository: '$(paymentrepository)'
-  #             command: 'buildAndPush'
-  #             Dockerfile: 'payment-service/dockerfile'
-  #             buildContext: 'payment-service'
-  #             tags: |
-  #               $(tag)
-  #               latest
+    - task: TerraformInstaller@1
+      displayName: Install Terraform
+      inputs:
+        terraformVersion: 'latest'
+
+    # Terraform Init
+    - task: TerraformTask@5
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(Build.SourcesDirectory)/terraform'
+        backendServiceArm: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
+        backendAzureRmOverrideSubscriptionID: '3216be10-695a-4fd6-ae65-70140df12a16'
+        backendAzureRmResourceGroupName: 'Capstone-rg'
+        backendAzureRmStorageAccountName: 'credpyproject'
+        backendAzureRmContainerName: 'statefile'
+        backendAzureRmKey: 'credpyproject.terraform.tfstate'
+
+    # Verify Terraform files
+    - task: Bash@3
+      displayName: Verify Terraform Configuration
+      inputs:
+        targetType: 'inline'
+        workingDirectory: '$(Build.SourcesDirectory)/terraform'
+        script: |
+          echo "===================================="
+          echo "Terraform Working Directory"
+          echo "===================================="
+          pwd
+
+          echo ""
+          echo "Terraform files:"
+          ls -la
+
+          echo ""
+          echo "main.tf:"
+          test -f main.tf && echo "main.tf FOUND" || {
+            echo "ERROR: main.tf NOT FOUND"
+            exit 1
+          }
+
+    # Terraform Apply
+    - task: AzureCLI@2
+      displayName: Terraform Apply
+      inputs:
+        connectionType: 'Azure Resource Manager'
+        azureSubscription: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        workingDirectory: '$(Build.SourcesDirectory)/terraform'
+        inlineScript: |
+          echo "===================================="
+          echo "Terraform Apply"
+          echo "===================================="
+
+          echo "Current directory:"
+          pwd
+
+          echo ""
+          echo "Terraform files:"
+          ls -la
+
+          echo ""
+          echo "Terraform version:"
+          terraform version
+
+          echo ""
+          echo "Terraform plan:"
+          terraform plan -out=tfplan
+
+          echo ""
+          echo "Terraform apply:"
+          terraform apply -auto-approve tfplan
