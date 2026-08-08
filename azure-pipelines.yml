@@ -36,6 +36,7 @@ stages:
                 scriptType: 'bash'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
+                  cd terraform
                   terraform init
                   terraform apply -auto-approve
   # - stage: dockerbuild
