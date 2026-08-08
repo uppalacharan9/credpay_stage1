@@ -13,20 +13,6 @@ stages:
       displayName: Install Terraform
       inputs:
         terraformVersion: 'latest'
-    - task: TerraformTask@5
-      displayName: Terraform Init
-      inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(Build.SourcesDirectory)/terraform'
-        commandOptions: '-reconfigure'
-        backendServiceArm: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
-        backendAzureRmOverrideSubscriptionID: '3216be10-695a-4fd6-ae65-70140df12a16'
-        backendAzureRmResourceGroupName: 'Capstone-rg'
-        backendAzureRmStorageAccountName: 'credpyproject'
-        backendAzureRmContainerName: 'statefile'
-        backendAzureRmKey: 'credpyproject.terraform.tfstate'
-
     - task: AzureCLI@3
       inputs:
         connectionType: 'azureRM'
@@ -34,6 +20,6 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          cd terraform
           terraform init
+          terraform plan -var-file=terraform.tfvars
           terraform apply -auto-approve
