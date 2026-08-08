@@ -1,12 +1,3 @@
-pool:
-  vmImage: ubuntu-latest
-
-variables:
-  acrserviceconnection: 'new_acr_connection'
-  frontendrepository: 'credpay/frontend'
-  userrepository: 'credpay/user-service'
-  paymentrepository: 'credpay/payment-service'
-  tag: '$(Build.BuildId)'
 stages:
     - stage: terraform
       displayName: terrafrom infra
