@@ -33,7 +33,7 @@ stages:
               inputs:
                 connectionType: 'azureRM'
                 azureSubscription: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
-                scriptType: 'batch'
+                scriptType: 'bash'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   terraform init
