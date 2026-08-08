@@ -29,6 +29,15 @@ stages:
                 backendAzureRmStorageAccountName: 'credpyproject'
                 backendAzureRmContainerName: 'statefile'
                 backendAzureRmKey: 'credpyproject.terraform.tfstate'
+            - task: AzureCLI@3
+              inputs:
+                connectionType: 'azureRM'
+                azureSubscription: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
+                scriptType: 'batch'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  terraform init
+                  terraform apply -auto-approve
   # - stage: dockerbuild
   #   displayName: Docker Build
 
