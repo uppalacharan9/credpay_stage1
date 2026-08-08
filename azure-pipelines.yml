@@ -20,6 +20,7 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
+          cd terraform
           terraform init
           terraform plan -var-file=terraform.tfvars
           terraform apply -auto-approve
