@@ -13,73 +13,13 @@ stages:
       displayName: Install Terraform
       inputs:
         terraformVersion: 'latest'
-
-    # Terraform Init
-    - task: TerraformTask@5
-      displayName: Terraform Init
+    - task: AzureCLI@3
       inputs:
-        provider: 'azurerm'
-        command: 'init'
-        workingDirectory: '$(Build.SourcesDirectory)/terraform'
-        backendServiceArm: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
-        backendAzureRmOverrideSubscriptionID: '3216be10-695a-4fd6-ae65-70140df12a16'
-        backendAzureRmResourceGroupName: 'Capstone-rg'
-        backendAzureRmStorageAccountName: 'credpyproject'
-        backendAzureRmContainerName: 'statefile'
-        backendAzureRmKey: 'credpyproject.terraform.tfstate'
-
-    # Verify Terraform files
-    - task: Bash@3
-      displayName: Verify Terraform Configuration
-      inputs:
-        targetType: 'inline'
-        workingDirectory: '$(Build.SourcesDirectory)/terraform'
-        script: |
-          echo "===================================="
-          echo "Terraform Working Directory"
-          echo "===================================="
-          pwd
-
-          echo ""
-          echo "Terraform files:"
-          ls -la
-
-          echo ""
-          echo "main.tf:"
-          test -f main.tf && echo "main.tf FOUND" || {
-            echo "ERROR: main.tf NOT FOUND"
-            exit 1
-          }
-
-    # Terraform Apply
-    - task: AzureCLI@2
-      displayName: Terraform Apply
-      inputs:
-        connectionType: 'Azure Resource Manager'
+        connectionType: 'azureRM'
         azureSubscription: 'Azure subscription 1(3216be10-695a-4fd6-ae65-70140df12a16)'
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
-        workingDirectory: '$(Build.SourcesDirectory)/terraform'
         inlineScript: |
-          echo "===================================="
-          echo "Terraform Apply"
-          echo "===================================="
-
-          echo "Current directory:"
-          pwd
-
-          echo ""
-          echo "Terraform files:"
-          ls -la
-
-          echo ""
-          echo "Terraform version:"
-          terraform version
-
-          echo ""
-          echo "Terraform plan:"
-          terraform plan -out=tfplan
-
-          echo ""
-          echo "Terraform apply:"
-          terraform apply -auto-approve tfplan
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
